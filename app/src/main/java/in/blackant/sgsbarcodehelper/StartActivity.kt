@@ -58,9 +58,12 @@ class StartActivity : AppCompatActivity() {
                                 file
                             )
                             val install = Intent(Intent.ACTION_VIEW)
+                            install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             install.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             install.setDataAndType(uri, update.connection.contentType)
                             startActivity(install)
+
+                            runOnUiThread { setFinishOnTouchOutside(true) }
                         }
                     }
                 } else {
