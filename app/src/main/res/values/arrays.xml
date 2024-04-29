@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="shift">
+        <item>ALL SHIFT</item>
+        <item>SHIFT A1</item>
+        <item>SHIFT A2</item>
+        <item>SHIFT A3</item>
+        <item>SHIFT B1</item>
+        <item>SHIFT B2</item>
+        <item>SHIFT B3</item>
+        <item>SHIFT C1</item>
+        <item>SHIFT C2</item>
+        <item>SHIFT C3</item>
+    </string-array>
+</resources>
