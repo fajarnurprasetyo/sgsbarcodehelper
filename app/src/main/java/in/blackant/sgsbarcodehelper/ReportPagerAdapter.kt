@@ -1,15 +1,15 @@
 package `in`.blackant.sgsbarcodehelper
 
-import android.annotation.SuppressLint
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import `in`.blackant.sgsbarcodehelper.databinding.ReportListBinding
 
-class ReportPagerAdapter : RecyclerView.Adapter<ReportPagerAdapter.ViewHolder>() {
-    val grading = ReportListAdapter()
-    val stbj = ReportListAdapter()
+class ReportPagerAdapter(context: Context) : RecyclerView.Adapter<ReportPagerAdapter.ViewHolder>() {
+    val grading = ReportListAdapter(context)
+    val stbj = ReportListAdapter(context)
 
     override fun getItemCount(): Int {
         return 2
@@ -35,15 +35,15 @@ class ReportPagerAdapter : RecyclerView.Adapter<ReportPagerAdapter.ViewHolder>()
         }
 
         fun bind(adapter: ReportListAdapter) {
-            adapter.listener = {setSummary(adapter)}
+            adapter.onReportListChange = {setSummary(adapter)}
             binding.list.adapter = adapter
             setSummary(adapter)
         }
 
         private fun setSummary(adapter: ReportListAdapter) {
-            binding.crate.text = String.format("%d Crate", adapter.local.crate + adapter.export.crate)
-            binding.pcs.text = String.format("%d Pcs", adapter.local.pcs + adapter.export.pcs)
-            binding.volume.text = String.format("%.2f m³", adapter.local.volume + adapter.export.volume)
+            binding.crate.text = String.format("%d Crate", adapter.list.crate)
+            binding.pcs.text = String.format("%d Pcs", adapter.list.pcs)
+            binding.volume.text = String.format("%.2f m³", adapter.list.volume)
         }
     }
 }
