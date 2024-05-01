@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="loading">Memuat…</string>
-    <string name="no_internet">Internet tidak tersedia</string>
-    <string name="checking_updates">Memeriksa pembaruan…</string>
-    <string name="downloading_updates">Mengunduh pembaruan…</string>
+    <string name="downloading">Mengunduh pembaruan</string>
     <string name="report">Laporan</string>
     <string name="send">Kirim</string>
     <string name="add">Tambah</string>
@@ -23,4 +20,7 @@
     <string name="delete_item_message">Apakah anda yakin ingin menghapus item ini?</string>
     <string name="cancel">Batal</string>
     <string name="delete_item_title">Hapus item</string>
+    <string name="ignore">Abaikan</string>
+    <string name="update">Perbarui</string>
+    <string name="update_available">Pembaruan tersedia</string>
 </resources>

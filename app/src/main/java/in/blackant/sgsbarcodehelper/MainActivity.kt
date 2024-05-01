@@ -2,6 +2,7 @@ package `in`.blackant.sgsbarcodehelper
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -22,7 +23,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.materials.setOnClickListener {}
         binding.report.setOnClickListener {
-            binding.report.isEnabled = false
             startActivity(
                 Intent(
                     this,
@@ -37,11 +37,17 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        binding.report.performClick()
-    }
-
-    override fun onResume() {
-        binding.report.isEnabled = true
-        super.onResume()
+        Thread {
+            if (Utils.isOnline(this)) {
+                val update = Utils.getUpdate()
+                if (update != null) {
+                    runOnUiThread { UpdateDialog(this, update) }
+                }
+            }
+            runOnUiThread {
+                binding.loading.visibility = View.GONE
+                binding.main.visibility = View.VISIBLE
+            }
+        }.start()
     }
 }

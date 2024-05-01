@@ -3,6 +3,7 @@ package `in`.blackant.sgsbarcodehelper
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.util.Log
 import org.json.JSONObject
 import java.io.FileNotFoundException
 import java.net.HttpURLConnection
@@ -39,12 +40,17 @@ class Utils {
                     inputStream.bufferedReader().use {
                         val json = JSONObject(it.readText())
                         it.close()
+                        Log.d("UPDATE CONTENT", json.toString(2))
                         val version = json.getString("name")
                         if (BuildConfig.VERSION_NAME != version) {
                             val apkUrl = json.getJSONArray("assets")
                                 .getJSONObject(0)
                                 .getString("browser_download_url")
-                            return Update(version, URL(apkUrl).openConnection() as HttpURLConnection)
+                            return Update(
+                                URL(apkUrl).openConnection() as HttpURLConnection,
+                                version,
+                                json.getString("body"),
+                            )
                         }
                         return null
                     }
@@ -55,5 +61,5 @@ class Utils {
         }
     }
 
-    data class Update(val version: String, val connection: HttpURLConnection)
+    data class Update(val connection: HttpURLConnection, val version: String, val desc: String)
 }

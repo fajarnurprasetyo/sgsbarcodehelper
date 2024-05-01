@@ -5,38 +5,24 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ArrayAdapter
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import `in`.blackant.sgsbarcodehelper.databinding.ActivityReportBinding
-import `in`.blackant.sgsbarcodehelper.databinding.DialogReportSendBinding
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.text.DecimalFormat
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class ReportActivity : AppCompatActivity() {
-    private var initialized = false
     private lateinit var dataStore: DataStoreManager
-    private lateinit var binding: ActivityReportBinding
     private lateinit var pagerAdapter: ReportPagerAdapter
     private lateinit var addDialog: ReportAddItemDialog
-    private lateinit var sendBinding: DialogReportSendBinding
-    private lateinit var sendDialog: AlertDialog
-    private val today = MaterialDatePicker.todayInUtcMilliseconds()
-    private var datePicker = MaterialDatePicker.Builder.datePicker().setSelection(today).build()
-    private var dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    private lateinit var sendDialog: ReportSendDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         dataStore = DataStoreManager(this)
-        binding = ActivityReportBinding.inflate(layoutInflater)
+        val binding = ActivityReportBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
@@ -47,7 +33,7 @@ class ReportActivity : AppCompatActivity() {
             tab.setText(if (position == 0) R.string.grading else R.string.stbj)
         }.attach()
 
-        addDialog = ReportAddItemDialog(this).setOnAddItemListener { dialog ->
+        addDialog = ReportAddItemDialog(this) { dialog ->
             (if (binding.viewPager.currentItem == 0) pagerAdapter.grading else pagerAdapter.stbj).list.add(
                 ReportItem(
                     dialog.group,
@@ -59,31 +45,7 @@ class ReportActivity : AppCompatActivity() {
                 )
             )
         }
-
-        sendBinding = DialogReportSendBinding.inflate(layoutInflater)
-        sendBinding.shift.setAdapter(
-            ArrayAdapter.createFromResource(
-                this,
-                R.array.shift,
-                android.R.layout.simple_list_item_1
-            )
-        )
-        sendBinding.dateContainer.setEndIconOnClickListener {
-            datePicker.show(
-                supportFragmentManager,
-                null
-            )
-        }
-        sendBinding.date.setText(dateFormat.format(Date(today)))
-        datePicker.addOnPositiveButtonClickListener {
-            sendBinding.date.setText(dateFormat.format(Date(it)))
-        }
-        sendDialog = MaterialAlertDialogBuilder(this)
-            .setView(sendBinding.root)
-            .create()
-        sendBinding.send.setOnClickListener {
-            sendReport()
-        }
+        sendDialog = ReportSendDialog(this, this::sendReport)
 
         runBlocking {
             val reportData = dataStore.getReportList().first()
@@ -107,9 +69,6 @@ class ReportActivity : AppCompatActivity() {
 
         binding.loading.visibility = View.GONE
         binding.main.visibility = View.VISIBLE
-
-        initialized = true
-        invalidateOptionsMenu()
     }
 
     override fun onStop() {
@@ -128,21 +87,9 @@ class ReportActivity : AppCompatActivity() {
         return DecimalFormat("#,###").format(n).replace(",", ".")
     }
 
-    private fun sendReport() {
-        if (sendBinding.shift.text.isEmpty()) {
-            sendBinding.shift.requestFocus()
-            return
-        }
-
-        if (sendBinding.date.text?.isEmpty() != false) {
-            sendBinding.date.requestFocus()
-            return
-        }
-
-        sendDialog.dismiss()
-
+    private fun sendReport(dialog: ReportSendDialog) {
         val report = StringBuilder()
-        report.append("*${sendBinding.shift.text} @ ${sendBinding.date.text}*")
+        report.append("*${dialog.shift} @ ${dialog.date}*")
 
         report.append("\n\n*GRADING LOCAL*")
         pagerAdapter.grading.local.groupBy { it.thick }.let { grouped ->
@@ -233,10 +180,6 @@ class ReportActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_report, menu)
-        if (menu != null && initialized) {
-            menu.findItem(R.id.add_report_item).setEnabled(true)
-            menu.findItem(R.id.send_report).setEnabled(true)
-        }
         return true
     }
 

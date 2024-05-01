@@ -70,6 +70,7 @@ class ReportList : ArrayList<ReportItem> {
             return from(filter { it.group == ReportItem.Group.EXPORT })
         }
 
+    @Suppress("unused", "RedundantSuppression")
     fun groupBy(selector: (ReportItem) -> Any):Map<Any, ReportList> {
             return fold(mutableMapOf()) { result, item ->
                 val key = selector(item)

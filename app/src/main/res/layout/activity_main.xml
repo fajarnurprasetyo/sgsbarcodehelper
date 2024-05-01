@@ -24,18 +24,32 @@
         android:orientation="vertical"
         android:paddingHorizontal="48dp">
 
-        <Button
-            android:id="@+id/materials"
+        <ProgressBar
+            android:id="@+id/loading"
+            style="?android:attr/progressBarStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/materials"
-            android:visibility="gone" />
+            android:layout_height="wrap_content" />
 
-        <Button
-            android:id="@+id/report"
+        <LinearLayout
+            android:id="@+id/main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/report" />
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/materials"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/materials"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/report"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/report" />
+        </LinearLayout>
 
     </LinearLayout>
 

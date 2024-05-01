@@ -6,12 +6,10 @@
         android:icon="@drawable/ic_add_24"
         android:id="@+id/add_report_item"
         android:title="@string/add"
-        android:enabled="false"
         app:showAsAction="always" />
     <item
         android:icon="@drawable/ic_send_24"
         android:id="@+id/send_report"
         android:title="@string/send"
-        android:enabled="false"
         app:showAsAction="ifRoom" />
 </menu>

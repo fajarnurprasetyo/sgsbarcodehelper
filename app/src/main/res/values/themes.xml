@@ -1,6 +1,4 @@
 <resources>
-    <style name="Theme.StartActivity" parent="Theme.Material3.Light.Dialog.Alert" />
-
     <style name="Theme.Base" parent="Theme.Material3.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorAccent">@color/primary</item>

@@ -7,17 +7,14 @@ import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import `in`.blackant.sgsbarcodehelper.databinding.DialogReportAddBinding
 
-class ReportAddItemDialog(context: Context) {
-    private var binding: DialogReportAddBinding
-    private var dialog: AlertDialog
-    private var listener: ((ReportAddItemDialog) -> Any)? = null
+@Suppress("unused", "RedundantSuppression")
+class ReportAddItemDialog(private val context: Context, onAdd: (ReportAddItemDialog) -> Any?) {
+    private var binding: DialogReportAddBinding = DialogReportAddBinding.inflate(LayoutInflater.from(context))
+    private var dialog: AlertDialog = MaterialAlertDialogBuilder(context)
+        .setView(binding.root)
+        .create()
 
     init {
-        binding = DialogReportAddBinding.inflate(LayoutInflater.from(context))
-        dialog = MaterialAlertDialogBuilder(context)
-            .setView(binding.root)
-            .create()
-
         val thickAdapter =
             ArrayAdapter(context, android.R.layout.simple_list_item_1, ReportItem.Thick.plywood)
         binding.thick.setAdapter(thickAdapter)
@@ -61,15 +58,10 @@ class ReportAddItemDialog(context: Context) {
             }
 
             dialog.dismiss()
-            listener?.let { it(this) }
+            onAdd(this)
         }
 
         dialog.setOnShowListener { binding.crate.setText("1") }
-    }
-
-    fun setOnAddItemListener(listener: ((ReportAddItemDialog) -> Any)): ReportAddItemDialog {
-        this.listener = listener
-        return this
     }
 
     fun show() {
