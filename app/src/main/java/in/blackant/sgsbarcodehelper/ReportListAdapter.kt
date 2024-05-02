@@ -111,7 +111,7 @@ class ReportListAdapter(context: Context) : RecyclerView.Adapter<ReportListAdapt
             } else {
                 binding.titleContainer.visibility = View.GONE
             }
-            binding.label.text = "${item.thick} ${item.grade}${if (item.type.isEmpty()) "" else " ${item.type}"} #${item.pcs}"
+            binding.label.text = "${item.thick} ${item.grade}${if (item.type.isEmpty()) "" else " ${item.type}"} @${item.pcs}"
             binding.crate.setText(item.crate.toString())
             this.item = item
             this.onChange = onChange

@@ -14,6 +14,11 @@ import kotlinx.coroutines.runBlocking
 import java.text.DecimalFormat
 
 class ReportActivity : AppCompatActivity() {
+    companion object {
+        private const val THICK_STRING = "\n│  *%.1f mm*"
+        private const val ITEM_STRING = "\n│    %s%s @%d = %d Krat"
+    }
+
     private lateinit var dataStore: DataStoreManager
     private lateinit var binding: ActivityReportBinding
     private lateinit var pagerAdapter: ReportPagerAdapter
@@ -103,9 +108,17 @@ class ReportActivity : AppCompatActivity() {
                 if (group.value.crate > 0) {
                     if (first) first = false
                     else report.append("\n│")
-                    report.append("\n│  *${group.key} mm*")
+                    report.append(String.format(THICK_STRING, group.key))
                     for (item in group.value) {
-                        if (item.crate > 0) report.append("\n│    $item")
+                        if (item.crate > 0) report.append(
+                            String.format(
+                                ITEM_STRING,
+                                item.grade,
+                                if (item.type.isEmpty()) "" else " ${item.type}",
+                                item.pcs,
+                                item.crate,
+                            )
+                        )
                     }
                 }
             }
@@ -118,9 +131,17 @@ class ReportActivity : AppCompatActivity() {
                 if (group.value.crate > 0) {
                     if (first) first = false
                     else report.append("\n│")
-                    report.append("\n│  *${group.key} mm*")
+                    report.append(String.format(THICK_STRING, group.key))
                     for (item in group.value) {
-                        if (item.crate > 0) report.append("\n│    $item")
+                        if (item.crate > 0) report.append(
+                            String.format(
+                                ITEM_STRING,
+                                item.grade,
+                                if (item.type.isEmpty()) "" else " ${item.type}",
+                                item.pcs,
+                                item.crate,
+                            )
+                        )
                     }
                 }
             }
@@ -143,9 +164,17 @@ class ReportActivity : AppCompatActivity() {
                 if (group.value.crate > 0) {
                     if (first) first = false
                     else report.append("\n│")
-                    report.append("\n│  *${group.key} mm*")
+                    report.append(String.format(THICK_STRING, group.key))
                     for (item in group.value) {
-                        if (item.crate > 0) report.append("\n│    $item")
+                        if (item.crate > 0) report.append(
+                            String.format(
+                                ITEM_STRING,
+                                item.grade,
+                                if (item.type.isEmpty()) "" else " ${item.type}",
+                                item.pcs,
+                                item.crate,
+                            )
+                        )
                     }
                 }
             }
@@ -158,9 +187,17 @@ class ReportActivity : AppCompatActivity() {
                 if (group.value.crate > 0) {
                     if (first) first = false
                     else report.append("\n│")
-                    report.append("\n│  *${group.key} mm*")
+                    report.append(String.format(THICK_STRING, group.key))
                     for (item in group.value) {
-                        if (item.crate > 0) report.append("\n│    $item")
+                        if (item.crate > 0) report.append(
+                            String.format(
+                                ITEM_STRING,
+                                item.grade,
+                                if (item.type.isEmpty()) "" else " ${item.type}",
+                                item.pcs,
+                                item.crate,
+                            )
+                        )
                     }
                 }
             }

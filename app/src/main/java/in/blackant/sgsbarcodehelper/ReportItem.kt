@@ -13,10 +13,6 @@ class ReportItem(
             return thick * 1.22f * 2.44f * pcs / 1000f
         }
 
-    override fun toString(): String {
-        return "${if (grade is Grade) grade.label else grade}${if (type.isEmpty()) "" else " $type"} $pcs = $crate Krat"
-    }
-
     override fun hashCode(): Int {
         var result = group.hashCode()
         result = 31 * result + thick.hashCode()
