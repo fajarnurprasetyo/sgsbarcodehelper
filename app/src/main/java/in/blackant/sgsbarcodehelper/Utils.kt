@@ -3,7 +3,8 @@ package `in`.blackant.sgsbarcodehelper
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.util.Log
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import java.io.FileNotFoundException
 import java.net.HttpURLConnection
@@ -40,7 +41,6 @@ class Utils {
                     inputStream.bufferedReader().use {
                         val json = JSONObject(it.readText())
                         it.close()
-                        Log.d("UPDATE CONTENT", json.toString(2))
                         val version = json.getString("name")
                         if (BuildConfig.VERSION_NAME != version) {
                             val apkUrl = json.getJSONArray("assets")
@@ -52,14 +52,44 @@ class Utils {
                                 json.getString("body"),
                             )
                         }
-                        return null
                     }
                 }
-            } catch (e: FileNotFoundException) {
-                return null
+            } catch (_: FileNotFoundException) {
             }
+            return null
+        }
+
+        private const val PAYDAY_URL =
+            "https://raw.githubusercontent.com/fajarnurprasetyo/sgsbarcodehelper/main/latest-payday.txt"
+
+        fun isPayday(context: Context): Boolean {
+            val dataStore = DataStoreManager(context)
+            try {
+                val latestPayday: String?
+                runBlocking {
+                    latestPayday = dataStore.getPayday().first()
+                }
+                with(URL(PAYDAY_URL).openConnection() as HttpURLConnection) {
+                    requestMethod = "GET"
+                    setRequestProperty("Accept", "text/plain")
+                    inputStream.bufferedReader().use {
+                        val payday = it.readText()
+                        it.close()
+                        if (payday != latestPayday) {
+                            dataStore.setPayday(payday)
+                            return latestPayday != null
+                        }
+                    }
+                }
+            } catch (_: FileNotFoundException) {
+            }
+            return false
         }
     }
 
-    data class Update(val connection: HttpURLConnection, val version: String, val desc: String)
+    data class Update(
+        val connection: HttpURLConnection,
+        val version: String,
+        val desc: String
+    )
 }

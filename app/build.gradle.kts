@@ -12,8 +12,8 @@ android {
         applicationId = "in.blackant.sgsbarcodehelper"
         minSdk = 28
         targetSdk = 34
-        versionCode = 101
-        versionName = "1.0.1"
+        versionCode = 102
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -58,12 +58,17 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
 
     implementation(libs.androidx.datastore)
-
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.protolite.well.known.types)
+
+    implementation(libs.markwon.core)
+    implementation(libs.markwon.html)
+    implementation(libs.markwon.image)
+    implementation(libs.markwon.imageglide)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

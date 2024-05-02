@@ -17,6 +17,7 @@ class DataStoreManager(context: Context) : ViewModel() {
     companion object {
         private val Context.dataStore by preferencesDataStore("preferences")
         val REPORT_LIST = stringPreferencesKey("report_list")
+        val LATEST_PAYDAY = stringPreferencesKey("latest_payday")
     }
 
     private val dataStore = context.dataStore
@@ -35,5 +36,21 @@ class DataStoreManager(context: Context) : ViewModel() {
                 throw exception
             }
         }.map { preferences -> preferences[REPORT_LIST] }
+    }
+
+    fun setPayday(payday: String) {
+        viewModelScope.launch {
+            dataStore.edit { preferences -> preferences[LATEST_PAYDAY] = payday }
+        }
+    }
+
+    fun getPayday(): Flow<String?> {
+        return dataStore.data.catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { preferences -> preferences[LATEST_PAYDAY] }
     }
 }
