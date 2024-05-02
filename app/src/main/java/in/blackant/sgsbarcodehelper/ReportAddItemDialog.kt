@@ -1,17 +1,18 @@
 package `in`.blackant.sgsbarcodehelper
 
 import android.content.Context
+import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
-import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import `in`.blackant.sgsbarcodehelper.databinding.DialogReportAddBinding
+import `in`.blackant.sgsbarcodehelper.databinding.DialogReportAddItemBinding
 
 @Suppress("unused", "RedundantSuppression")
-class ReportAddItemDialog(private val context: Context, onAdd: (ReportAddItemDialog) -> Any?) {
-    private var binding: DialogReportAddBinding = DialogReportAddBinding.inflate(LayoutInflater.from(context))
-    private var dialog: AlertDialog = MaterialAlertDialogBuilder(context)
+class ReportAddItemDialog(private val context: Context) {
+    private var binding = DialogReportAddItemBinding.inflate(LayoutInflater.from(context))
+    private var dialog = MaterialAlertDialogBuilder(context)
         .setView(binding.root)
+        .setPositiveButton(R.string.add, null)
         .create()
 
     init {
@@ -36,7 +37,13 @@ class ReportAddItemDialog(private val context: Context, onAdd: (ReportAddItemDia
             )
         )
 
-        binding.add.setOnClickListener {
+        dialog.setOnShowListener { binding.crate.setText("1") }
+
+    }
+
+    fun show(onAdd: () -> Any?) {
+        dialog.show()
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener{
             if (binding.thick.text.isEmpty()) {
                 binding.thick.requestFocus()
                 return@setOnClickListener
@@ -58,14 +65,8 @@ class ReportAddItemDialog(private val context: Context, onAdd: (ReportAddItemDia
             }
 
             dialog.dismiss()
-            onAdd(this)
+            onAdd()
         }
-
-        dialog.setOnShowListener { binding.crate.setText("1") }
-    }
-
-    fun show() {
-        dialog.show()
     }
 
     val group get() = if (binding.local.isChecked) ReportItem.Group.LOCAL else ReportItem.Group.EXPORT

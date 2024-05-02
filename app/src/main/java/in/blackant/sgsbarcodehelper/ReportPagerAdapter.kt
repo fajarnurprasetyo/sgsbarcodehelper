@@ -7,7 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import `in`.blackant.sgsbarcodehelper.databinding.ReportListBinding
 
-class ReportPagerAdapter(context: Context) : RecyclerView.Adapter<ReportPagerAdapter.ViewHolder>() {
+class ReportPagerAdapter(private val context: Context) :
+    RecyclerView.Adapter<ReportPagerAdapter.ViewHolder>() {
     val grading = ReportListAdapter(context)
     val stbj = ReportListAdapter(context)
 
@@ -17,8 +18,9 @@ class ReportPagerAdapter(context: Context) : RecyclerView.Adapter<ReportPagerAda
 
     override fun onCreateViewHolder(parent: ViewGroup, type: Int): ViewHolder {
         return ViewHolder(
+            context,
             ReportListBinding.inflate(
-                LayoutInflater.from(parent.context),
+                LayoutInflater.from(context),
                 parent,
                 false
             )
@@ -29,21 +31,22 @@ class ReportPagerAdapter(context: Context) : RecyclerView.Adapter<ReportPagerAda
         holder.bind(if (position == 0) grading else stbj)
     }
 
-    class ViewHolder(private var binding: ReportListBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(private val context: Context, private val binding: ReportListBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         init {
             binding.list.layoutManager = LinearLayoutManager(binding.root.context)
         }
 
         fun bind(adapter: ReportListAdapter) {
-            adapter.onReportListChange = {setSummary(adapter)}
+            adapter.onReportListChange = { setSummary(adapter) }
             binding.list.adapter = adapter
             setSummary(adapter)
         }
 
         private fun setSummary(adapter: ReportListAdapter) {
-            binding.crate.text = String.format("%d Crate", adapter.list.crate)
-            binding.pcs.text = String.format("%d Pcs", adapter.list.pcs)
-            binding.volume.text = String.format("%.2f m³", adapter.list.volume)
+            binding.crate.text = context.getString(R.string.crate_value, adapter.list.crate)
+            binding.pcs.text = context.getString(R.string.pcs_value, adapter.list.pcs)
+            binding.volume.text = context.getString(R.string.volume_value, adapter.list.volume)
         }
     }
 }

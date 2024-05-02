@@ -42,6 +42,8 @@ class MainActivity : AppCompatActivity() {
                 val update = Utils.getUpdate()
                 if (update != null) {
                     runOnUiThread { UpdateDialog(this, update) }
+                } else if (Utils.isPayday(this)) {
+                    runOnUiThread { TrakteerDialog(this) }
                 }
             }
             runOnUiThread {

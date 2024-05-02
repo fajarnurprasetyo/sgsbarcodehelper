@@ -1,5 +1,6 @@
 package `in`.blackant.sgsbarcodehelper
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -14,6 +15,7 @@ import java.text.DecimalFormat
 
 class ReportActivity : AppCompatActivity() {
     private lateinit var dataStore: DataStoreManager
+    private lateinit var binding: ActivityReportBinding
     private lateinit var pagerAdapter: ReportPagerAdapter
     private lateinit var addDialog: ReportAddItemDialog
     private lateinit var sendDialog: ReportSendDialog
@@ -22,7 +24,7 @@ class ReportActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         dataStore = DataStoreManager(this)
-        val binding = ActivityReportBinding.inflate(layoutInflater)
+        binding = ActivityReportBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
@@ -33,19 +35,8 @@ class ReportActivity : AppCompatActivity() {
             tab.setText(if (position == 0) R.string.grading else R.string.stbj)
         }.attach()
 
-        addDialog = ReportAddItemDialog(this) { dialog ->
-            (if (binding.viewPager.currentItem == 0) pagerAdapter.grading else pagerAdapter.stbj).list.add(
-                ReportItem(
-                    dialog.group,
-                    dialog.thick,
-                    dialog.grade,
-                    dialog.type,
-                    dialog.pcs,
-                    dialog.crate,
-                )
-            )
-        }
-        sendDialog = ReportSendDialog(this, this::sendReport)
+        addDialog = ReportAddItemDialog(this)
+        sendDialog = ReportSendDialog(this)
 
         runBlocking {
             val reportData = dataStore.getReportList().first()
@@ -87,9 +78,23 @@ class ReportActivity : AppCompatActivity() {
         return DecimalFormat("#,###").format(n).replace(",", ".")
     }
 
-    private fun sendReport(dialog: ReportSendDialog) {
+    private fun addReportItem() {
+        (if (binding.viewPager.currentItem == 0) pagerAdapter.grading else pagerAdapter.stbj).list.add(
+            ReportItem(
+                addDialog.group,
+                addDialog.thick,
+                addDialog.grade,
+                addDialog.type,
+                addDialog.pcs,
+                addDialog.crate,
+            )
+        )
+    }
+
+    @SuppressLint("DefaultLocale")
+    private fun sendReport() {
         val report = StringBuilder()
-        report.append("*${dialog.shift} @ ${dialog.date}*")
+        report.append("*${sendDialog.shift} @ ${sendDialog.date}*")
 
         report.append("\n\n*GRADING LOCAL*")
         pagerAdapter.grading.local.groupBy { it.thick }.let { grouped ->
@@ -171,11 +176,22 @@ class ReportActivity : AppCompatActivity() {
             )
         )
 
+        if (sendDialog.advanced) {
+            report.append(
+                String.format(
+                    "\n\n*UTY+ Up = %.2f%%*\n*Reject = %.2f%%*\n*Reject+Repair = %.2f%%*",
+                    sendDialog.utyPlusUp,
+                    sendDialog.reject,
+                    sendDialog.rejectRepair,
+                )
+            )
+        }
+
         val intent = Intent(Intent.ACTION_SEND)
         intent.setType("text/plain")
         intent.putExtra(Intent.EXTRA_SUBJECT, "Laporan")
         intent.putExtra(Intent.EXTRA_TEXT, report.toString())
-        startActivity(Intent.createChooser(intent, "Karim laporan"))
+        startActivity(Intent.createChooser(intent, "Kirim laporan"))
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -191,12 +207,12 @@ class ReportActivity : AppCompatActivity() {
             }
 
             R.id.add_report_item -> {
-                addDialog.show()
+                addDialog.show(this::addReportItem)
                 true
             }
 
             R.id.send_report -> {
-                sendDialog.show()
+                sendDialog.show(this::sendReport)
                 true
             }
 
