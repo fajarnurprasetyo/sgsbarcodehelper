@@ -1,23 +1,22 @@
 package `in`.blackant.sgsbarcodehelper
 
 class ReportItem(
-    val group: Group,
     val thick: Float,
     val grade: Any,
-    val type: String,
+    private val _glue: Any,
     val pcs: Int,
     var crate: Int
 ) {
+    val glue = if (_glue is Glue) _glue.value else _glue.toString()
     val volume
         get(): Float {
             return thick * 1.22f * 2.44f * pcs / 1000f
         }
 
     override fun hashCode(): Int {
-        var result = group.hashCode()
-        result = 31 * result + thick.hashCode()
+        var result = thick.hashCode()
         result = 31 * result + grade.hashCode()
-        result = 31 * result + type.hashCode()
+        result = 31 * result + _glue.hashCode()
         result = 31 * result + pcs
         return result
     }
@@ -28,18 +27,12 @@ class ReportItem(
 
         other as ReportItem
 
-        if (group != other.group) return false
         if (thick != other.thick) return false
         if (grade != other.grade) return false
-        if (type != other.type) return false
+        if (_glue != other._glue) return false
         if (pcs != other.pcs) return false
 
         return true
-    }
-
-    enum class Group(val type: Int) {
-        LOCAL(0),
-        EXPORT(1),
     }
 
     enum class Thick(val value: Float, val pcs: Array<Int>) {
@@ -92,13 +85,15 @@ class ReportItem(
 
     enum class Grade(val label: String, val value: Int) {
         // Plywood
-        BBCC("BBCC", 0),
-        UT2("UT2", 1),
+        UT2("UT2", 0),
+        UT2_DGE("UT2 DGE", 1),
         UT1("UT1", 2),
-        UTY("UTY", 3),
-        UTY_L("UTY-L", 4),
-        UTY_PLUS("UTY+", 5),
-        UTY_E("EXP", 6),
+        UT1_DGE("UT1 DGE", 3),
+        UTY("UTY", 4),
+        UTY_L("UTY-L", 5),
+        UTY_PLUS("UTY+", 101),
+        UTY_E("EXP", 102),
+        BBCC("BBCC", 103),
 
         // Veneer
         LC("LC", 0);
@@ -108,28 +103,48 @@ class ReportItem(
         }
 
         companion object {
-            fun fromString(grade: String): Grade? {
+            fun fromString(grade: String): Any {
                 for (item in entries) {
                     if (grade == item.label) {
                         return item
                     }
                 }
-                return null
+                return grade
             }
 
             val plywood = arrayOf(
+                BBCC,
                 UTY_E,
                 UTY_PLUS,
                 UTY_L,
                 UTY,
+                UT1_DGE,
                 UT1,
+                UT2_DGE,
                 UT2,
-                BBCC,
             )
 
             val veneer = arrayOf(
                 LC
             )
+        }
+    }
+
+    enum class Glue(val value:String) {
+        MR("MR"),
+        E1("E1"),
+        E2("E2"),
+        CARB("CARB");
+
+        companion object {
+            fun fromString(glue: String): Any {
+                for (item in entries) {
+                    if (glue == item.value) {
+                        return item
+                    }
+                }
+                return glue
+            }
         }
     }
 }

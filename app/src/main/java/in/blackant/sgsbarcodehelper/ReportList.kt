@@ -25,7 +25,7 @@ class ReportList : ArrayList<ReportItem> {
             }
         }
         if (super.add(element)) {
-            sortWith(compareBy<ReportItem> { it.group }
+            sortWith(compareBy<ReportItem> { if (it.grade is ReportItem.Grade) it.grade.value else 0 }
                 .thenBy { it.thick }
                 .thenByDescending { if (it.grade is ReportItem.Grade) it.grade.value else 0 }
                 .thenBy { it.pcs }
@@ -62,12 +62,12 @@ class ReportList : ArrayList<ReportItem> {
 
     val local
         get():ReportList {
-            return from(filter { it.group == ReportItem.Group.LOCAL })
+            return from(filter { it.grade !is ReportItem.Grade || it.grade.value < 100 })
         }
 
     val export
         get():ReportList {
-            return from(filter { it.group == ReportItem.Group.EXPORT })
+            return from(filter { it.grade is ReportItem.Grade && it.grade.value > 100 })
         }
 
     @Suppress("unused", "RedundantSuppression")

@@ -25,4 +25,5 @@
     <string name="update_available">Pembaruan tersedia</string>
     <string name="advanced">Lanjutan</string>
     <string name="crate_value">%d Krat</string>
+    <string name="glue">Lem</string>
 </resources>

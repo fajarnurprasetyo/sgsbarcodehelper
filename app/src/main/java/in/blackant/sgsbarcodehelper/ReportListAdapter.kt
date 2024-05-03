@@ -106,12 +106,13 @@ class ReportListAdapter(context: Context) : RecyclerView.Adapter<ReportListAdapt
             this.deleteDialog = null
             this.onDelete = null
             if (isFirst) {
-                binding.title.setText(if (item.group == ReportItem.Group.LOCAL) R.string.local else R.string.export)
+                val isLocal = item.grade !is ReportItem.Grade || item.grade.value < 100
+                binding.title.setText(if (isLocal) R.string.local else R.string.export)
                 binding.titleContainer.visibility = View.VISIBLE
             } else {
                 binding.titleContainer.visibility = View.GONE
             }
-            binding.label.text = "${item.thick} ${item.grade}${if (item.type.isEmpty()) "" else " ${item.type}"} @${item.pcs}"
+            binding.label.text = "${item.thick} ${item.grade}${if (item.glue.isEmpty()) "" else " ${item.glue}"} @${item.pcs}"
             binding.crate.setText(item.crate.toString())
             this.item = item
             this.onChange = onChange

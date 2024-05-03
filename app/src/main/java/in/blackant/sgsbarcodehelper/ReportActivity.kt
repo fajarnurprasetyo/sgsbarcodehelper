@@ -47,14 +47,23 @@ class ReportActivity : AppCompatActivity() {
             val reportData = dataStore.getReportList().first()
             if (reportData != null) {
                 for (item in reportData.split("\n").map { it.split(";") }) {
-                    if (item.size == 6) {
+                    if (item.size >= 5) {
+                        var thick = item[1]
+                        var grade = item[2]
+                        var glue = item[3]
+                        var pcs = item[4]
+                        if (item.size == 6) {
+                            thick = item[2]
+                            grade = item[3]
+                            glue = item[4]
+                            pcs = item[5]
+                        }
                         (if (item[0] == "grading") pagerAdapter.grading else pagerAdapter.stbj).list.add(
                             ReportItem(
-                                if (item[1] == "local") ReportItem.Group.LOCAL else ReportItem.Group.EXPORT,
-                                item[2].toFloat(),
-                                ReportItem.Grade.fromString(item[3]) ?: "Unknown",
-                                item[4],
-                                item[5].toInt(),
+                                thick.toFloat(),
+                                ReportItem.Grade.fromString(grade),
+                                ReportItem.Glue.fromString(glue),
+                                pcs.toInt(),
                                 0,
                             )
                         )
@@ -70,10 +79,8 @@ class ReportActivity : AppCompatActivity() {
     override fun onStop() {
         dataStore.setReportList(
             listOf(
-                pagerAdapter.grading.local.joinToString("\n") { item -> "grading;local;${item.thick};${item.grade};${item.type};${item.pcs}" },
-                pagerAdapter.grading.export.joinToString("\n") { item -> "grading;export;${item.thick};${item.grade};${item.type};${item.pcs}" },
-                pagerAdapter.stbj.local.joinToString("\n") { item -> "stbj;local;${item.thick};${item.grade};${item.type};${item.pcs}" },
-                pagerAdapter.stbj.export.joinToString("\n") { item -> "stbj;export;${item.thick};${item.grade};${item.type};${item.pcs}" },
+                pagerAdapter.grading.list.joinToString("\n") { item -> "grading;${item.thick};${item.grade};${item.glue};${item.pcs}" },
+                pagerAdapter.stbj.list.joinToString("\n") { item -> "stbj;${item.thick};${item.grade};${item.glue};${item.pcs}" },
             ).joinToString("\n")
         )
         super.onStop()
@@ -86,10 +93,9 @@ class ReportActivity : AppCompatActivity() {
     private fun addReportItem() {
         (if (binding.viewPager.currentItem == 0) pagerAdapter.grading else pagerAdapter.stbj).list.add(
             ReportItem(
-                addDialog.group,
                 addDialog.thick,
                 addDialog.grade,
-                addDialog.type,
+                addDialog.glue,
                 addDialog.pcs,
                 addDialog.crate,
             )
@@ -114,7 +120,7 @@ class ReportActivity : AppCompatActivity() {
                             String.format(
                                 ITEM_STRING,
                                 item.grade,
-                                if (item.type.isEmpty()) "" else " ${item.type}",
+                                if (item.glue.isEmpty()) "" else " ${item.glue}",
                                 item.pcs,
                                 item.crate,
                             )
@@ -137,7 +143,7 @@ class ReportActivity : AppCompatActivity() {
                             String.format(
                                 ITEM_STRING,
                                 item.grade,
-                                if (item.type.isEmpty()) "" else " ${item.type}",
+                                if (item.glue.isEmpty()) "" else " ${item.glue}",
                                 item.pcs,
                                 item.crate,
                             )
@@ -170,7 +176,7 @@ class ReportActivity : AppCompatActivity() {
                             String.format(
                                 ITEM_STRING,
                                 item.grade,
-                                if (item.type.isEmpty()) "" else " ${item.type}",
+                                if (item.glue.isEmpty()) "" else " ${item.glue}",
                                 item.pcs,
                                 item.crate,
                             )
@@ -193,7 +199,7 @@ class ReportActivity : AppCompatActivity() {
                             String.format(
                                 ITEM_STRING,
                                 item.grade,
-                                if (item.type.isEmpty()) "" else " ${item.type}",
+                                if (item.glue.isEmpty()) "" else " ${item.glue}",
                                 item.pcs,
                                 item.crate,
                             )

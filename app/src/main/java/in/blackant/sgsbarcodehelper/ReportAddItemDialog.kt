@@ -37,6 +37,12 @@ class ReportAddItemDialog(private val context: Context) {
             )
         )
 
+        binding.glue.setAdapter(
+            ArrayAdapter(
+                context, android.R.layout.simple_list_item_1, ReportItem.Glue.entries
+            )
+        )
+
         dialog.setOnShowListener { binding.crate.setText("1") }
 
     }
@@ -69,16 +75,18 @@ class ReportAddItemDialog(private val context: Context) {
         }
     }
 
-    val group get() = if (binding.local.isChecked) ReportItem.Group.LOCAL else ReportItem.Group.EXPORT
     val thick
         get() = if (binding.thick.text.isEmpty()) 0f else binding.thick.text.toString().toFloat()
     val grade
         get():Any {
             val gradeStr = binding.grade.text.toString()
-            return ReportItem.Grade.fromString(gradeStr) ?: gradeStr
+            return ReportItem.Grade.fromString(gradeStr)
         }
-
-    val type get() = binding.type.text.toString()
+    val glue
+        get():Any {
+            val glueStr = binding.glue.text.toString()
+            return ReportItem.Glue.fromString(glueStr)
+        }
     val pcs get() = if (binding.pcs.text.isEmpty()) 0 else binding.pcs.text.toString().toInt()
     val crate
         get() = if (binding.crate.text.isNullOrEmpty()) 0 else binding.crate.text.toString().toInt()

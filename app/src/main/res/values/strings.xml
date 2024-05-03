@@ -27,4 +27,5 @@
     <string name="crate_value" tools:ignore="PluralsCandidate">%d Crate</string>
     <string name="pcs_value" translatable="false">%d Pcs</string>
     <string name="volume_value" translatable="false">%.2f m³</string>
+    <string name="glue">Glue</string>
 </resources>
