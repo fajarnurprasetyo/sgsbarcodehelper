@@ -1,11 +1,14 @@
 package `in`.blackant.sgsbarcodehelper
 
-class ReportList : ArrayList<ReportItem> {
-    private var listener: ReportListListener? = null
+class ReportList : ArrayList<ReportItem>() {
+    private val listeners = ArrayList<Listener>()
 
-    constructor()
-    constructor(listener: ReportListListener) {
-        this.listener = listener
+    fun addListener(listener: Listener) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: Listener) {
+        listeners.remove(listener)
     }
 
     companion object {
@@ -20,17 +23,23 @@ class ReportList : ArrayList<ReportItem> {
         for (item in this) {
             if (item == element) {
                 item.crate += element.crate
-                listener?.onItemChanged(indexOf(item))
+                for (listener in listeners)
+                    listener.onItemChanged(indexOf(item), true)
                 return true
             }
         }
         if (super.add(element)) {
-            sortWith(compareBy<ReportItem> { if (it.grade is ReportItem.Grade) it.grade.value else 0 }
+            element.addListener {
+                for (listener in listeners)
+                    listener.onItemChanged(indexOf(element), false)
+            }
+            sortWith(compareBy<ReportItem> { if (it.grade is ReportItem.Grade) if (it.grade.value > 100) 1 else 0 else 0 }
                 .thenBy { it.thick }
                 .thenByDescending { if (it.grade is ReportItem.Grade) it.grade.value else 0 }
                 .thenBy { it.pcs }
             )
-            listener?.onItemAdded(indexOf(element))
+            for (listener in listeners)
+                listener.onItemAdded(indexOf(element))
             return true
         }
         return false
@@ -39,7 +48,8 @@ class ReportList : ArrayList<ReportItem> {
     override fun remove(element: ReportItem): Boolean {
         val index = indexOf(element)
         if (super.remove(element)) {
-            listener?.onItemRemoved(index)
+            for (listener in listeners)
+                listener.onItemRemoved(index)
             return true
         }
         return false
@@ -70,22 +80,20 @@ class ReportList : ArrayList<ReportItem> {
             return from(filter { it.grade is ReportItem.Grade && it.grade.value > 100 })
         }
 
-    @Suppress("unused", "RedundantSuppression")
-    fun groupBy(selector: (ReportItem) -> Any):Map<Any, ReportList> {
-            return fold(mutableMapOf()) { result, item ->
-                val key = selector(item)
-                println(key)
-                if (!result.containsKey(key)) {
-                    result[key] = ReportList()
-                }
-                result[key]!!.add(item)
-                result
+    fun groupBy(selector: (ReportItem) -> Any): Map<Any, ReportList> {
+        return fold(mutableMapOf()) { result, item ->
+            val key = selector(item)
+            if (!result.containsKey(key)) {
+                result[key] = ReportList()
             }
+            result[key]!!.add(item)
+            result
         }
+    }
 
-    interface ReportListListener {
+    interface Listener {
         fun onItemAdded(index: Int)
-        fun onItemChanged(index: Int)
+        fun onItemChanged(index: Int, notify: Boolean)
         fun onItemRemoved(index: Int)
     }
 }

@@ -5,12 +5,20 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import `in`.blackant.sgsbarcodehelper.databinding.ReportListBinding
 
 class ReportPagerAdapter(private val context: Context) :
     RecyclerView.Adapter<ReportPagerAdapter.ViewHolder>() {
-    val grading = ReportListAdapter(context)
-    val stbj = ReportListAdapter(context)
+    private val deleteDialog = MaterialAlertDialogBuilder(context)
+        .setTitle(R.string.delete_item_title)
+        .setMessage(R.string.delete_item_message)
+        .setNegativeButton(R.string.cancel, null)
+        .setPositiveButton(R.string.delete, null)
+        .setCancelable(false)
+        .create()
+    val grading = ReportListAdapter(context, deleteDialog)
+    val stbj = ReportListAdapter(context, deleteDialog)
 
     override fun getItemCount(): Int {
         return 2
@@ -38,15 +46,16 @@ class ReportPagerAdapter(private val context: Context) :
         }
 
         fun bind(adapter: ReportListAdapter) {
-            adapter.onReportListChange = { setSummary(adapter) }
+            adapter.onReportListChange = { updateSummary(adapter) }
             binding.list.adapter = adapter
-            setSummary(adapter)
+            updateSummary(adapter)
         }
 
-        private fun setSummary(adapter: ReportListAdapter) {
-            binding.crate.text = context.getString(R.string.crate_value, adapter.list.crate)
-            binding.pcs.text = context.getString(R.string.pcs_value, adapter.list.pcs)
-            binding.volume.text = context.getString(R.string.volume_value, adapter.list.volume)
+        private fun updateSummary(adapter: ReportListAdapter) {
+            binding.summary.totalCrate.text = context.getString(R.string.crate_value, adapter.list.crate)
+            binding.summary.totalPcs.text = context.getString(R.string.pcs_value, adapter.list.pcs)
+            binding.summary.totalVolume.text =
+                context.getString(R.string.volume_value, adapter.list.volume)
         }
     }
 }

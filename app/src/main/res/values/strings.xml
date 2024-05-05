@@ -15,7 +15,6 @@
     <string name="materials">Materials</string>
     <string name="grading">Grading</string>
     <string name="stbj">STBJ</string>
-    <string name="type">Type</string>
     <string name="delete">Delete</string>
     <string name="delete_item_message">Are you sure you want to delete this item?</string>
     <string name="cancel">Cancel</string>

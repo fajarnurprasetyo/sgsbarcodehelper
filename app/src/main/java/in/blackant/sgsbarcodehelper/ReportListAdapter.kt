@@ -1,31 +1,21 @@
 package `in`.blackant.sgsbarcodehelper
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import `in`.blackant.sgsbarcodehelper.databinding.ReportListItemBinding
 
-class ReportListAdapter(context: Context) : RecyclerView.Adapter<ReportListAdapter.ViewHolder>(),
-    ReportList.ReportListListener {
-    private val deleteDialog: AlertDialog
-    val list = ReportList(this)
+class ReportListAdapter(private val context: Context, private val deleteDialog: AlertDialog) :
+    RecyclerView.Adapter<ReportListAdapter.ViewHolder>(),
+    ReportList.Listener {
+    val list = ReportList()
     var onReportListChange: (() -> Any)? = null
 
     init {
-        deleteDialog = MaterialAlertDialogBuilder(context)
-            .setTitle(R.string.delete_item_title)
-            .setMessage(R.string.delete_item_message)
-            .setNegativeButton(R.string.cancel, null)
-            .setPositiveButton(R.string.delete, null)
-            .setCancelable(false)
-            .create()
+        list.addListener(this)
     }
 
     val local
@@ -42,27 +32,22 @@ class ReportListAdapter(context: Context) : RecyclerView.Adapter<ReportListAdapt
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, type: Int): ViewHolder {
-        return ViewHolder(
-            ReportListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        )
+        val binding = ReportListItemBinding.inflate(LayoutInflater.from(context), parent, false)
+        return ViewHolder(binding.root, list, deleteDialog)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = list[position]
-        val isFirst = list.local.indexOf(item) == 0 || list.export.indexOf(item) == 0
-        holder.bind(item, isFirst, onReportListChange, deleteDialog) {
-            list.remove(item)
-            onReportListChange?.let { it() }
-        }
+        holder.bind(position)
     }
 
     override fun onItemAdded(index: Int) {
         notifyItemInserted(index)
+        notifyItemRangeChanged(list.local.size, list.export.size)
         onReportListChange?.let { it() }
     }
 
-    override fun onItemChanged(index: Int) {
-        notifyItemChanged(index)
+    override fun onItemChanged(index: Int, notify: Boolean) {
+        if (notify) notifyItemChanged(index)
         onReportListChange?.let { it() }
     }
 
@@ -71,53 +56,71 @@ class ReportListAdapter(context: Context) : RecyclerView.Adapter<ReportListAdapt
         onReportListChange?.let { it() }
     }
 
-    class ViewHolder(private val binding: ReportListItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        private var item: ReportItem? = null
-        private var onChange: (() -> Any?)? = null
-        private var deleteDialog: AlertDialog? = null
-        private var onDelete: (() -> Any?)? = null
+    class ViewHolder(
+        private val view: ReportItemView,
+        private var list: ReportList,
+        private val deleteDialog: AlertDialog,
+    ) :
+        RecyclerView.ViewHolder(view), ReportList.Listener, ReportItemView.Listener {
+        private lateinit var item: ReportItem
+        private var isLocal: Boolean = false
 
-        init {
-            binding.clear.setOnClickListener { binding.crate.setText("0") }
-            binding.crate.addTextChangedListener {
-                item?.crate = if (!it.isNullOrEmpty()) it.toString().toInt() else 0
-                onChange?.let { it() }
+        fun bind(position: Int) {
+            item = list[position]
+            isLocal =
+                item.grade !is ReportItem.Grade || (item.grade as ReportItem.Grade).value < 100
+
+            val local = list.local
+            val export = list.export
+
+            view.removeTitle()
+            view.removeSummary()
+            view.setListener(null)
+
+            if ((isLocal && local.indexOf(item) == 0) || (!isLocal && export.indexOf(item) == 0)) {
+                view.setTitle(if (isLocal) R.string.local else R.string.export)
             }
-            binding.delete.setOnClickListener {
-                deleteDialog?.show()
-                    deleteDialog!!.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener{
-                        onDelete?.let { it() }
-                        deleteDialog!!.dismiss()
-                    }
-            }
+
+            view.setLabel("${item.thick} ${item.grade}${if (item.glue.isEmpty()) "" else " ${item.glue}"} @${item.pcs}")
+            view.setCrate(item.crate)
+
+            if ((isLocal && local.indexOf(item) == local.size - 1) || (!isLocal && export.indexOf(
+                    item
+                ) == export.size - 1)
+            ) {
+                list.addListener(this)
+                updateSummary()
+            } else list.removeListener(this)
+
+            view.setListener(this)
         }
 
-        @SuppressLint("SetTextI18n")
-        fun bind(
-            item: ReportItem,
-            isFirst: Boolean,
-            onChange: (() -> Any?)?,
-            deleteDialog: AlertDialog,
-            onDelete: (() -> Any?)?,
-        ) {
-            this.item = null
-            this.onChange = null
-            this.deleteDialog = null
-            this.onDelete = null
-            if (isFirst) {
-                val isLocal = item.grade !is ReportItem.Grade || item.grade.value < 100
-                binding.title.setText(if (isLocal) R.string.local else R.string.export)
-                binding.titleContainer.visibility = View.VISIBLE
-            } else {
-                binding.titleContainer.visibility = View.GONE
+        private fun updateSummary() {
+            view.setSummary(if (isLocal) list.local else list.export)
+        }
+
+        override fun onItemAdded(index: Int) {
+            updateSummary()
+        }
+
+        override fun onItemChanged(index: Int, notify: Boolean) {
+            updateSummary()
+        }
+
+        override fun onItemRemoved(index: Int) {
+            updateSummary()
+        }
+
+        override fun onCrateChange(crate: Int) {
+            item.crate = crate
+        }
+
+        override fun onDelete() {
+            deleteDialog.show()
+            deleteDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+                list.remove(item)
+                deleteDialog.dismiss()
             }
-            binding.label.text = "${item.thick} ${item.grade}${if (item.glue.isEmpty()) "" else " ${item.glue}"} @${item.pcs}"
-            binding.crate.setText(item.crate.toString())
-            this.item = item
-            this.onChange = onChange
-            this.deleteDialog = deleteDialog
-            this.onDelete = onDelete
         }
     }
 }

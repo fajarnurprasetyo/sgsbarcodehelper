@@ -5,9 +5,26 @@ class ReportItem(
     val grade: Any,
     private val _glue: Any,
     val pcs: Int,
-    var crate: Int
+    private var _crate: Int
 ) {
+    private val listeners = ArrayList<() -> Any?>()
+
+    fun addListener(listener: () -> Any?) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: () -> Any?) {
+        listeners.remove(listener)
+    }
+
     val glue = if (_glue is Glue) _glue.value else _glue.toString()
+    var crate
+        get() = _crate
+        set(value) {
+            _crate = value
+            for (listener in listeners)
+                listener()
+        }
     val volume
         get(): Float {
             return thick * 1.22f * 2.44f * pcs / 1000f
@@ -130,7 +147,7 @@ class ReportItem(
         }
     }
 
-    enum class Glue(val value:String) {
+    enum class Glue(val value: String) {
         MR("MR"),
         E1("E1"),
         E2("E2"),

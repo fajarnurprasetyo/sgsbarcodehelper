@@ -5,8 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.tabs.TabLayoutMediator
 import `in`.blackant.sgsbarcodehelper.databinding.ActivityReportBinding
 import kotlinx.coroutines.flow.first
@@ -30,9 +31,14 @@ class ReportActivity : AppCompatActivity() {
 
         dataStore = DataStoreManager(this)
         binding = ActivityReportBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
         setSupportActionBar(binding.toolbar)
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
         pagerAdapter = ReportPagerAdapter(this)
         binding.viewPager.adapter = pagerAdapter
         binding.viewPager.offscreenPageLimit = 1
@@ -47,23 +53,13 @@ class ReportActivity : AppCompatActivity() {
             val reportData = dataStore.getReportList().first()
             if (reportData != null) {
                 for (item in reportData.split("\n").map { it.split(";") }) {
-                    if (item.size >= 5) {
-                        var thick = item[1]
-                        var grade = item[2]
-                        var glue = item[3]
-                        var pcs = item[4]
-                        if (item.size == 6) {
-                            thick = item[2]
-                            grade = item[3]
-                            glue = item[4]
-                            pcs = item[5]
-                        }
+                    if (item.size == 5) {
                         (if (item[0] == "grading") pagerAdapter.grading else pagerAdapter.stbj).list.add(
                             ReportItem(
-                                thick.toFloat(),
-                                ReportItem.Grade.fromString(grade),
-                                ReportItem.Glue.fromString(glue),
-                                pcs.toInt(),
+                                item[1].toFloat(),
+                                ReportItem.Grade.fromString(item[2]),
+                                ReportItem.Glue.fromString(item[3]),
+                                item[4].toInt(),
                                 0,
                             )
                         )
@@ -71,9 +67,6 @@ class ReportActivity : AppCompatActivity() {
                 }
             }
         }
-
-        binding.loading.visibility = View.GONE
-        binding.main.visibility = View.VISIBLE
     }
 
     override fun onStop() {

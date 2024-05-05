@@ -15,7 +15,11 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.Executors
 
-class UpdateDialog(private val context: Context, private val update: Utils.Update) {
+class UpdateDialog(
+    private val context: Context,
+    private val update: Utils.Update,
+    onDismiss: () -> Any?
+) {
     private val binding = DialogUpdateBinding.inflate(LayoutInflater.from(context))
     private val dialog = MaterialAlertDialogBuilder(context)
         .setTitle(R.string.update_available)
@@ -27,6 +31,7 @@ class UpdateDialog(private val context: Context, private val update: Utils.Updat
 
     init {
         binding.message.text = update.desc
+        dialog.setOnDismissListener { onDismiss() }
         dialog.show()
         dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener { runUpdate() }
     }

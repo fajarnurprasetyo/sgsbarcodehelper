@@ -13,7 +13,10 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:title="@string/app_name" />
+            android:background="?attr/colorAccent"
+            app:menu="@menu/menu_report"
+            app:title="@string/report"
+            app:titleTextColor="@android:color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -24,33 +27,18 @@
         android:orientation="vertical"
         android:paddingHorizontal="48dp">
 
-        <ProgressBar
-            android:id="@+id/loading"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <LinearLayout
-            android:id="@+id/main"
+        <Button
+            android:id="@+id/materials"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:text="@string/materials"
+            android:visibility="gone" />
 
-            <Button
-                android:id="@+id/materials"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/materials"
-                android:visibility="gone" />
-
-            <Button
-                android:id="@+id/report"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/report" />
-        </LinearLayout>
-
+        <Button
+            android:id="@+id/report"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/report" />
     </LinearLayout>
 
 </LinearLayout>

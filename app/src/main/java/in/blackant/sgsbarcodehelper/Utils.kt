@@ -62,7 +62,7 @@ class Utils {
         private const val PAYDAY_URL =
             "https://raw.githubusercontent.com/fajarnurprasetyo/sgsbarcodehelper/main/latest-payday.txt"
 
-        fun isPayday(context: Context): Boolean {
+        fun getPayday(context: Context): String? {
             val dataStore = DataStoreManager(context)
             try {
                 val latestPayday: String?
@@ -76,14 +76,13 @@ class Utils {
                         val payday = it.readText()
                         it.close()
                         if (payday != latestPayday) {
-                            dataStore.setPayday(payday)
-                            return latestPayday != null
+                            return payday
                         }
                     }
                 }
             } catch (_: FileNotFoundException) {
             }
-            return false
+            return null
         }
     }
 
